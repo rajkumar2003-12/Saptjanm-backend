@@ -31,7 +31,6 @@ model Profile {
   maritalStatus   String   
   education       String    
   occupation      String   
-  photoUrl        String? 
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt

@@ -23,7 +23,6 @@ export const ProfileCreateUpdate = z.object({
   maritalStatus: z.string().min(1, "Marital Status is required"),
   education: z.string().min(1, "Education is required"),
   occupation: z.string().min(1, "Occupation is required"), 
-  photoUrl: z.string().url("Photo URL must be a valid URL").optional(),
 });
 
 

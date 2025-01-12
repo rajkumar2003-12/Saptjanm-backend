@@ -59,7 +59,7 @@ profileRouter.post("/create", async(c)=>{
     const validationZod = ProfileCreateUpdate.safeParse(body);
 
     if(!validationZod.success){
-      c.status(411);
+      c.status(404);
       return c.json({
           message: "Inputs not correct",
           errors: validationZod.error.format(),
@@ -87,11 +87,12 @@ profileRouter.post("/create", async(c)=>{
         }
     })
     console.log("profile_details",profile)
+    c.status(201)
     return c.json({
         profile
       })
   } catch(err){
-    return c.json({err},500)
+    return c.json({err})
   }
 })
 
@@ -131,7 +132,7 @@ profileRouter.put("/update",async(c)=>{
 
 })
 
-profileRouter.get("/filter", async(c)=>{
+profileRouter.get("/matches", async(c)=>{
 
   const prisma=new PrismaClient({
     datasourceUrl:c.env.DATABASE_URL,
@@ -146,13 +147,29 @@ profileRouter.get("/filter", async(c)=>{
     return c.json({ message: "User profile not found" }, 404);
   }
 
-  const filters: any = {};
-  filters.gender = userProfile.gender === "Male" ? "Female" : "Male";
-  filters.religion = userProfile.religion;
-  filters.maritalStatus = userProfile.maritalStatus;
+  const Matches: any = {};
+  Matches.gender = userProfile.gender === "Male" ? "Female" : "Male";
+  Matches.religion = userProfile.religion;
+  Matches.maritalStatus = userProfile.maritalStatus;
 
   const profiles= await prisma.profile.findMany({
-    where:filters,
+    where:Matches,
+    select:{
+      id:true,
+      name:true,
+      gender:true,
+      religion:true,
+      location:true,
+      maritalStatus:true,
+      education:true,
+      occupation:true,
+      createdAt:true
+    }
+  });
+  const user= await prisma.profile.findMany({
+    where:{
+      userId:Number(userId)
+    },
     select:{
       id:true,
       name:true,
@@ -166,13 +183,14 @@ profileRouter.get("/filter", async(c)=>{
     }
   });
 
+  c.status(201)
   return c.json({
-    profiles
+    profiles,user
   })
 
 })
 
-profileRouter.get("/details", async(c)=>{
+profileRouter.get("/user-profile", async(c)=>{
   const userId = c.get("userId")
   const prisma=new PrismaClient({
     datasourceUrl:c.env.DATABASE_URL,
@@ -205,20 +223,14 @@ profileRouter.get("/details", async(c)=>{
 })
 
 
-profileRouter.get("/", async (c) => {
-  const userId = c.get("userId");
-  console.log("userId from context:", userId); 
+profileRouter.get("/all-profiles", async (c) => { 
 
   const prisma = new PrismaClient({
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
   try {
-    const profile = await prisma.profile.findUnique
-    ({
-      where: {
-        userId: Number(userId)
-      },
+    const profile = await prisma.profile.findMany({
       select: {
         id:true,
         name: true,
