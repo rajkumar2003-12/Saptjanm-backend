@@ -1,0 +1,30 @@
+name = "saptjanm-backend"
+main = "src/index.ts"
+compatibility_date = "2025-01-10"
+
+# compatibility_flags = [ "nodejs_compat" ]
+
+[vars]
+DATABASE_URL="prisma://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiZDFhYzRhNmItNDE2YS00NjdmLWJhNGYtMzkyNzZjNDVkYjhlIiwidGVuYW50X2lkIjoiZjczZjk0OWUzZGM3ZWZlNGVhNmVhMTE4ZDEzZTA2ZDZhMGEyN2FkZDJkY2NjYzg5YWNiMThjMmU4OTFkOWI3MCIsImludGVybmFsX3NlY3JldCI6ImVmMTY1NjQ2LTBmMDAtNGIzNC1hNmE1LTIwNDNiYzQ3NmY0MCJ9.bJwmLojWpGY20pltgNGMSe0jW64y7FNrKwcxRFxGleM"
+SECRETE_KEY="rajkumar2003"
+
+
+# [[kv_namespaces]]
+# binding = "MY_KV_NAMESPACE"
+# id = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+
+# [[r2_buckets]]
+# binding = "MY_BUCKET"
+# bucket_name = "my-bucket"
+
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "my-database"
+# database_id = ""
+
+# [ai]
+# binding = "AI"
+
+# [observability]
+# enabled = true
+# head_sampling_rate = 1
