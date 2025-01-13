@@ -91,36 +91,6 @@ UserRouter.put('/update', async(c)=>{
   
 })
 
-UserRouter.get("/details", async(c)=>{
-  try{
-  const userId = c.get("userId")
-
-  const prisma =new PrismaClient({
-    datasourceUrl: c.env.DATABASE_URL,
-  }).$extends(withAccelerate())
-  
-  const user = await prisma.user.findMany({
-    where:{
-      id:Number(userId)
-    },
-    select:{
-      id:true,
-      username:true,
-      email:true,
-    }
-  })
-  if(!user){
-    c.status(404)
-    return c.json({error:"you are not a authorised person"})
-  }
-  c.status(201)
-  return c.json({user})
-}catch(error){
-  c.status(404)
-  return c.json({error:error})
-}
-})
-
 UserRouter.get("/details/:userId", async(c)=>{
   try{
   const userId =c.req.param("userId")
@@ -143,8 +113,22 @@ UserRouter.get("/details/:userId", async(c)=>{
     c.status(404)
     return c.json({error:"you are not a authorised person"})
   }
+  const profile = await prisma.profile.findMany({
+    where:{
+      userId:Number(userId)
+    },
+    select:{
+      name:true,
+      gender:true,
+      maritalStatus:true,
+      occupation:true,
+      education:true,
+      dateOfBirth:true,
+      religion:true
+    }
+  })
   c.status(201)
-  return c.json({user})
+  return c.json({user,profile})
 }catch(error){
   c.status(404)
   return c.json({error:error})

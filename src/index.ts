@@ -27,14 +27,14 @@ app.use('/*',cors({
 }))
 
 app.options('/*', (c) => {
-  c.header('Access-Control-Allow-Origin','https://saptjanm-matrimony.vercel.app' );
+  c.header('Access-Control-Allow-Origin','https://saptjanm-matrimony.vercel.app'); 
   c.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   c.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   c.header('Access-Control-Allow-Credentials', 'true');
   return c.json({ message: 'Preflight OK' });
 });
 
-app.route("/author",AuthorRouter);
+app.route("/author",AuthorRouter);   
 app.route("/user", UserRouter)
 app.route("/profile", profileRouter)
 
