@@ -99,20 +99,52 @@ UserRouter.get("/details", async(c)=>{
     datasourceUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate())
   
-  const user_details = await prisma.user.findMany({
+  const user = await prisma.user.findMany({
     where:{
       id:Number(userId)
     },
     select:{
+      id:true,
       username:true,
-      email:true
+      email:true,
     }
   })
-  if(!user_details){
+  if(!user){
     c.status(404)
     return c.json({error:"you are not a authorised person"})
   }
-  return c.json({user_details})
+  c.status(201)
+  return c.json({user})
+}catch(error){
+  c.status(404)
+  return c.json({error:error})
+}
+})
+
+UserRouter.get("/details/:userId", async(c)=>{
+  try{
+  const userId =c.req.param("userId")
+
+  const prisma =new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate())
+  
+  const user = await prisma.user.findUnique({
+    where:{
+      id:Number(userId)
+    },
+    select:{
+      id:true,
+      username:true,
+      email:true,
+    }
+  })
+  if(!user){
+    c.status(404)
+    return c.json({error:"you are not a authorised person"})
+  }
+  c.status(201)
+  return c.json({user})
 }catch(error){
   c.status(404)
   return c.json({error:error})

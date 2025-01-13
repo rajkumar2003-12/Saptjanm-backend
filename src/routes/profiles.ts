@@ -132,13 +132,16 @@ profileRouter.put("/update",async(c)=>{
 
 })
 
-profileRouter.get("/matches", async(c)=>{
-
-  const prisma=new PrismaClient({
-    datasourceUrl:c.env.DATABASE_URL,
-  }).$extends(withAccelerate())
+profileRouter.get("/matches", async (c) => {
+  const prisma = new PrismaClient({
+    datasourceUrl: c.env.DATABASE_URL,
+  }).$extends(withAccelerate());
 
   const userId = c.get("userId");
+  const page = Math.max(Number(c.req.query("page")) || 1, 1); 
+  const limit = Math.min(Math.max(Number(c.req.query("limit")) || 3, 1), 100);
+  const skip = (page - 1) * limit; 
+
   const userProfile = await prisma.profile.findUnique({
     where: { userId: Number(userId) },
   });
@@ -152,43 +155,55 @@ profileRouter.get("/matches", async(c)=>{
   Matches.religion = userProfile.religion;
   Matches.maritalStatus = userProfile.maritalStatus;
 
-  const profiles= await prisma.profile.findMany({
-    where:Matches,
-    select:{
-      id:true,
-      name:true,
-      gender:true,
-      religion:true,
-      location:true,
-      maritalStatus:true,
-      education:true,
-      occupation:true,
-      createdAt:true
-    }
+  const totalProfiles = await prisma.profile.count({
+    where: Matches,
   });
-  const user= await prisma.profile.findMany({
-    where:{
-      userId:Number(userId)
+
+  const profiles = await prisma.profile.findMany({
+    where: Matches,
+    select: {
+      id: true,
+      userId: true,
+      name: true,
+      gender: true,
+      religion: true,
+      location: true,
+      maritalStatus: true,
+      education: true,
+      occupation: true,
+      createdAt: true,
     },
-    select:{
-      id:true,
-      name:true,
-      gender:true,
-      religion:true,
-      location:true,
-      maritalStatus:true,
-      education:true,
-      occupation:true,
-      createdAt:true
-    }
+    skip,
+    take: limit,
   });
 
-  c.status(201)
-  return c.json({
-    profiles,user
-  })
+  const user = await prisma.profile.findMany({
+    where: {
+      userId: Number(userId),
+    },
+    select: {
+      id: true,
+      name: true,
+      gender: true,
+      religion: true,
+      location: true,
+      maritalStatus: true,
+      education: true,
+      occupation: true,
+      createdAt: true,
+    },
+  });
 
-})
+  c.status(201);
+  return c.json({
+    totalProfiles,
+    currentPage: page,
+    totalPages: Math.ceil(totalProfiles / limit),
+    profiles,
+    user,
+  });
+});
+
 
 profileRouter.get("/user-profile", async(c)=>{
   const userId = c.get("userId")
@@ -204,6 +219,7 @@ profileRouter.get("/user-profile", async(c)=>{
     },
     select:{
       id:true,
+      userId:true,
       name:true,
       gender:true,
       religion:true,
@@ -233,6 +249,7 @@ profileRouter.get("/all-profiles", async (c) => {
     const profile = await prisma.profile.findMany({
       select: {
         id:true,
+        userId:true,
         name: true,
         gender: true,
         religion: true,
@@ -247,9 +264,9 @@ profileRouter.get("/all-profiles", async (c) => {
     console.log("Profile result:", profile); 
 
     if (!profile) {
-      return c.json({ message: "Profile not found" }, 404);
+      return c.json({ message: "Profile not found" });
     }
-
+    c.status(201)
     return c.json({ profile });
   } catch (error:any) {
     console.error("Error in /get-profile:", error); 
