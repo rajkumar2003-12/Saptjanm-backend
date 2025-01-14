@@ -139,7 +139,7 @@ profileRouter.get("/matches", async (c) => {
 
   const userId = c.get("userId");
   const page = Math.max(Number(c.req.query("page")) || 1, 1); 
-  const limit = Math.min(Math.max(Number(c.req.query("limit")) || 3, 1), 100);
+  const limit = Math.min(Math.max(Number(c.req.query("limit")) || 4, 1), 100);
   const skip = (page - 1) * limit; 
 
   const userProfile = await prisma.profile.findUnique({
@@ -212,7 +212,7 @@ profileRouter.get("/user-profile", async(c)=>{
 
   }).$extends(withAccelerate())
 
-  const profiles= await prisma.profile.findUnique({
+  const profile= await prisma.profile.findUnique({
 
     where:{
       userId:Number(userId)
@@ -230,10 +230,10 @@ profileRouter.get("/user-profile", async(c)=>{
       createdAt:true
     }
   });
-  console.log("profile details",profiles)
-
+  console.log("profile details",profile)
+  c.status(201)
   return c.json({
-    profiles
+    profile
   })
 
 })
